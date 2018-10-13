@@ -1,0 +1,112 @@
+$(document).ready(function(){
+
+    // MODAL
+    var modalText = {
+     
+      walker: {
+        title: 'AHA',
+        tag: 'Health.',
+        detail: 'The American Heart Association (AHA) is a non-profit orgaization in the United States fosters appropriate cardiac care in an effort to reduce disability and deaths caused by cardiovascular disease and stroke. Originally formed in New York City in 1915 as the Association for the Prevention and Relief of Heart Disease.',
+      },
+      powur: {
+        title: 'LIFE INSURANCE',
+        tag: 'MULTI-LEVEL MARKETING.',
+        detail: 'A life insurance policy is a contract with an insurance company. In exchange for premium payments, the insurance company provides a lump-sum payment, known as a death benefit, to beneficiaries upon the insureds death. Typically, life insurance is chosen based on the needs and goals of the owner.',
+      },
+      themall: {
+        title: 'TTSL',
+        tag: 'Telecom Domain.',
+        detail: 'Tata Teleservices Limited (TTSL) is an Indian broadband and telecommunications service provider based in Mumbai,Maha-rashtra, India.Tata Teleservices offers multiple tariff plans in both the Post¬paid and Pre¬Paid category. It also offers Mobile Value Added Services to subscribers.',
+      }
+    };
+  
+    $('#gallery .button').on('click', function(){
+      fillModal(this.id);
+      $('.modal-wrap').addClass('visible');
+    });
+  
+    $('.close').on('click', function(){
+      $('.modal-wrap, #modal .button').removeClass('visible');
+    });
+  
+    $('.mask').on('click', function(){
+      $('.modal-wrap, #modal .button').removeClass('visible');
+    });
+  
+    var carousel = $('#carousel'),
+        slideWidth = 700,
+        threshold = slideWidth/3,
+        dragStart, 
+        dragEnd;
+  
+    setDimensions();
+  
+    $('#next').click(function(){ shiftSlide(-1) })
+    $('#prev').click(function(){ shiftSlide(1) })
+  
+    carousel.on('mousedown', function(){
+      if (carousel.hasClass('transition')) return;
+      dragStart = event.pageX;
+      $(this).on('mousemove', function(){
+        dragEnd = event.pageX;
+        $(this).css('transform','translateX('+ dragPos() +'px)');
+      });
+      $(document).on('mouseup', function(){
+        if (dragPos() > threshold) { return shiftSlide(1) }
+        if (dragPos() < -threshold) { return shiftSlide(-1) }
+        shiftSlide(0);
+      });
+    });
+  
+    function setDimensions() {
+      if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+       slideWidth = $(window).innerWidth();
+      }
+      $('.carousel-wrap, .slide').css('width', slideWidth);
+      $('.modal').css('max-width', slideWidth);
+      $('#carousel').css('left', slideWidth * -1)
+    }
+  
+    function dragPos() {
+      return dragEnd - dragStart;
+    }
+  
+    function shiftSlide(direction) {
+      if (carousel.hasClass('transition')) return;
+      dragEnd = dragStart;
+      $(document).off('mouseup')
+      carousel.off('mousemove')
+              .addClass('transition')
+              .css('transform','translateX(' + (direction * slideWidth) + 'px)'); 
+      setTimeout(function(){
+        if (direction === 1) {
+          $('.slide:first').before($('.slide:last'));
+        } else if (direction === -1) {
+          $('.slide:last').after($('.slide:first'));
+        }
+        carousel.removeClass('transition')
+        carousel.css('transform','translateX(0px)'); 
+      },700)
+    }
+  
+    function fillModal(id) {
+      $('#modal .title').text(modalText[id].title);
+      $('#modal .detail').text(modalText[id].detail);
+      $('#modal .tag').text(modalText[id].tag);
+      if (modalText[id].link) $('#modal .button').addClass('visible')
+                                                 .parent()
+                                                 .attr('href', modalText[id].link)
+  
+      $.each($('#modal li'), function(index, value ) {
+        $(this).text(modalText[id].bullets[index]);
+      });
+      $.each($('#modal .slide'), function(index, value) {
+        $(this).css({
+          background: "url('img/slides/" + id + '-' + index + ".jpg') center center/cover",
+          backgroundSize: 'cover'
+        });
+                
+      });
+    }
+  })
+  
